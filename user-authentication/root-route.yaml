@@ -1,0 +1,63 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: always-403-pod
+  namespace: default
+  labels:
+    app: always-403
+spec:
+  containers:
+  - name: always-403
+    image: ghcr.io/colinjlacy/always-403:main
+    imagePullPolicy: Always
+    ports:
+    - containerPort: 8080
+      protocol: TCP
+    resources:
+      requests:
+        memory: "16Mi"
+        cpu: "10m"
+      limits:
+        memory: "32Mi"
+        cpu: "50m"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: always-403-service
+  namespace: default
+spec:
+  type: ClusterIP
+  selector:
+    app: always-403
+  ports:
+  - port: 8080
+    targetPort: 8080
+    protocol: TCP
+
+---
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: HTTPRoute
+metadata:
+  name: always-403-route
+  namespace: default
+spec:
+  hostnames:
+    - colinjcodesalot.com
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: apps
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: "/"
+    backendRefs:
+    - group: ''
+      kind: Service
+      name: always-403-service
+      port: 8080
+      weight: 1

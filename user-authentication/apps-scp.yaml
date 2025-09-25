@@ -1,0 +1,50 @@
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: codesalot-security-policy
+  namespace: default
+spec:
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: Gateway
+    name: apps
+  # CORS configuration for web browser requests
+  cors:
+    allowOrigins:
+    - "https://colinjcodesalot.com"
+
+    allowMethods:
+    - GET
+    - POST
+    - PUT
+    - DELETE
+    - OPTIONS
+    - PATCH
+    maxAge: "24h"
+    allowCredentials: true
+  oidc:
+    provider:
+      issuer: https://cognito-idp.us-east-2.amazonaws.com/us-east-2_rowbwpPoL
+    clientID: 58dhdckpnm9gtbrbmqfs8vd2a0
+    clientSecret:
+      name: cognito-client-secret
+    cookieNames:
+      accessToken: AccessToken
+      idToken: IdToken
+    cookieConfig:
+      sameSite: Lax
+    redirectURL: https://%REQ(:authority)%/oauth2/callback
+    forwardAccessToken: true
+    passThroughAuthHeader: true
+    scopes: 
+    - "openid"
+    - "profile"
+    - "email"
+  jwt:
+    providers:
+    - name: aws-cognito
+      issuer: "https://cognito-idp.us-east-2.amazonaws.com/us-east-2_rowbwpPoL"
+      remoteJWKS:
+        uri: "https://cognito-idp.us-east-2.amazonaws.com/us-east-2_rowbwpPoL/.well-known/jwks.json"
+

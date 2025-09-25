@@ -1,0 +1,112 @@
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: opa
+  namespace: opa
+  labels:
+    app: opa
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: opa
+  template:
+    metadata:
+      labels:
+        app: opa
+    spec:
+      containers:
+      - name: opa
+        image: openpolicyagent/opa:0.70.0-envoy-17
+        args:
+        - "run"
+        - "--server"
+        - "--addr=0.0.0.0:8181"
+        - "--diagnostic-addr=0.0.0.0:8282"
+        - "--log-level=error"
+        - '--config-file=/config/config.yaml'
+        volumeMounts:
+        - name: opa-config
+          mountPath: /config
+        envFrom:
+        - secretRef:
+            name: policy-creds
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+        livenessProbe:
+          httpGet:
+            path: /health?plugins
+            scheme: HTTP
+            port: 8282
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /health?plugins
+            scheme: HTTP
+            port: 8282
+          initialDelaySeconds: 1
+          periodSeconds: 3
+      volumes:
+      - name: opa-config
+        configMap:
+          name: opa-config
+          defaultMode: 420
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: opa
+  namespace: opa
+spec:
+  selector:
+    app: opa
+  ports:
+  - name: grpc
+    protocol: TCP
+    port: 9191
+    targetPort: 9191
+  - name: api
+    protocol: TCP
+    port: 8181
+    targetPort: 8181
+
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opa-config
+  namespace: opa
+data:
+  config.yaml: |
+    services:
+      - name: controller
+        url: https://plural-community-demo-policies.s3.us-east-2.amazonaws.com
+        credentials:
+          s3_signing:
+              environment_credentials: {}
+    bundles:
+      authz:
+        service: controller
+        resource: authz.gz
+        polling:
+          min_delay_seconds: 10
+          max_delay_seconds: 20
+    plugins:
+      envoy_ext_authz_grpc:
+        addr: :9191
+        query: data.codesalot.authz.allow
+        dry-run: false
+        enable-reflection: false
+    decision_logs:
+      console: true
+
+
+    kind: Service
