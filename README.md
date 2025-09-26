@@ -2,6 +2,8 @@
 
 A repo that holds the different Kubernetes manifests used in demoing Envoy Gateway and OPA on September 25, 2025.
 
+If you're interested in the presentation slides, you can find them in the `presentation.pdf` file at the root of this repo.
+
 ## Setup
 
 Make sure you have an EKS cluster deployed with public API access, and kubectl configured to access the Kubernetes API. If you'd like to create a custom kubeconfig, you can run the following commands. 
