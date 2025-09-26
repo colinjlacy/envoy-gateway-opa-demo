@@ -12,7 +12,7 @@ spec:
   # CORS configuration for web browser requests
   cors:
     allowOrigins:
-    - "https://colinjcodesalot.com"
+    - "https://<YOUR_DOMAIN>"
 
     allowMethods:
     - GET
@@ -25,8 +25,8 @@ spec:
     allowCredentials: true
   oidc:
     provider:
-      issuer: https://cognito-idp.us-east-2.amazonaws.com/us-east-2_rowbwpPoL
-    clientID: 58dhdckpnm9gtbrbmqfs8vd2a0
+      issuer: <YOUR_COGNITO_ISSUER_URL>
+    clientID: <YOUR_COGNITO_CLIENT_ID>
     clientSecret:
       name: cognito-client-secret
     cookieNames:
@@ -44,7 +44,7 @@ spec:
   jwt:
     providers:
     - name: aws-cognito
-      issuer: "https://cognito-idp.us-east-2.amazonaws.com/us-east-2_rowbwpPoL"
+      issuer: <YOUR_COGNITO_ISSUER_URL>
       remoteJWKS:
-        uri: "https://cognito-idp.us-east-2.amazonaws.com/us-east-2_rowbwpPoL/.well-known/jwks.json"
+        uri: <YOUR_COGNITO_JWKS_URL/.well-known/jwks.json>
 

@@ -28,6 +28,10 @@ helm upgrade --install eg oci://docker.io/envoyproxy/gateway-helm \
   --create-namespace
 ```
 
+## FYI
+
+Most of the YAML files have placeholders that you need to replace with your values. I tried to keep them reflective of the types of things you'll put there, but if you want to see previous examples, look at the commit history. My original push of this repo had most of the original resource IDs from AWS, the domain name I used in the demo, etc. The only things I haven't pushed up are anything related to secrets.
+
 ## The Demo
 
 First thing is to add a TLS cert ARN to the GatewayClass in `ingress-basics/envoy-gateway-config.yaml` on line 32:
@@ -56,7 +60,7 @@ Once that's there, and DNS resolves across the internet, you should be able to a
 
 That's the simple routing part.
 
-## Authentication
+### Authentication
 
 I used AWS Cognito for my OIDC client to call into Google authentication. You can use whatever OIDC client you like. Just be sure to replace the details in `user-authentication/apps-scp.yaml`. Explaining how to set up an OIDC client is, unfortunately, beyond the scope of this demo.
 
@@ -68,7 +72,7 @@ kubectl apply -f user-authentication/
 
 Now, provided you've set up your OIDC connection correctly (double-check those redirect URLs!), you should be forced to sign in to your IdP whenever you go to `https://<your-domain>/httpbin/`. If you're using something like Google, in which you're permanently signed in, you can check for the presence of an `AccessToken` cookie at `https://<your-domain>/httpbin/cookies`.
 
-## Authorization
+### Authorization
 
 First thing you'll need to do is bundle and push your Rego policies to a remote store, such as S3. You can read all about how to do that on the [OPA project website](https://www.openpolicyagent.org/). You'll also need to provide a secret called `policy-creds` that has the appropriate IAM credentials to access the contents of that S3 bucket, using the following keys:
 
@@ -81,3 +85,7 @@ The current state of the OPA deployment expects that to be there, and will load 
 How you want to structure your authorization rules is up to you. You're welcome to stick with using Cognito groups like I have in my policy at `user-authorization/codesalot/authz/policy.rego:63-79`, or modify that however you like. Just be sure to add the users to the right groups to authorize them to see those protected routes.
 
 Enjoy!
+
+## Questions?
+
+Hit me on [LinkedIn](https://www.linkedin.com/in/colinjlacy/).

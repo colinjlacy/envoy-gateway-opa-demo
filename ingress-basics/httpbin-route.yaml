@@ -51,7 +51,7 @@ metadata:
   namespace: default
 spec:
   hostnames:
-    - colinjcodesalot.com
+    - <YOUR_DOMAIN>
   parentRefs:
     - group: gateway.networking.k8s.io
       kind: Gateway

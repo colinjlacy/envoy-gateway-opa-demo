@@ -62,7 +62,7 @@ is_token_expired(payload) if {
 # Define route permissions based on cognito:groups
 route_permissions := {
 
-    "/httpbin/headers": ["us-east-2_rowbwpPoL_Google"],
+    "/httpbin/headers": ["<YOUR_COGNITO_GROUP>"],
     
     "/httpbin/status/*": ["status-chasers"],
     
